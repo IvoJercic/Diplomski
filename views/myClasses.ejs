@@ -1,0 +1,42 @@
+<%-include("include/_header") %>
+
+<main id="site-main">
+    <div class="container">
+        <div class="box-nav d-flex justify-between">
+            <a href="/add-class" class="border-shadow">
+                <span class="text-gradient">Dodaj razred <i class="fas fa-user"></i></span>
+            </a>
+        </div>
+
+        <form action="/" method="POST">
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Razred</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(var i = 0; i < classes.length; i++) { %>
+                    <tr>
+                        <td><%= i + 1 %></td>
+                        <td><%= classes[i].name %></td>
+                        <td>
+                            <a href="/view-classroom?class=<%= classes[i]._id%>" class="btn border-shadow update"
+                                data-id=<%= classes[i]._id %>>
+                                <span class="text-gradient"><i class="fas fa-search"></i></span>
+                            </a>
+                            <a class="btn border-shadow delete" data-id=<%= classes[i]._id %>>
+                                <span class="text-gradient"><i class="fas fa-times"></i></span>
+                            </a>
+                        </td>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</main>
+
+<%-include("include/_footer") %>

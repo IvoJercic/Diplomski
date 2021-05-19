@@ -1,0 +1,101 @@
+<%-include("include/_header") %>
+<div>
+  <br />
+  <button id="camera-button" class="btn text-dark update" onclick="TopCodes.startStopVideoScan('video-canvas')">Start /
+    Stop</button>
+
+  <canvas id="video-canvas" width="600" height="600" style="background: #ddd;"></canvas>
+  <button id="send-button" onclick="sendAnswer()" style="display: none;">Predaj</button>
+  <input style="visibility: hidden;" value="<%= logedUser.classId %>" id="logedUserClassId"/>
+</div>
+
+
+<script src="/js/topcodes.js"></script>
+<script>
+
+  var topcodes;
+
+  function resizeCanvas() {
+    var canvs = document.getElementById("video-canvas");
+    canvs.width = window.innerWidth * 0.7;
+    canvs.height = window.innerHeight * 0.5;
+  }
+
+  resizeCanvas();
+
+  // callback funckija iz TopCode librarya
+  TopCodes.setVideoFrameCallback("video-canvas", function (jsonString) {
+    document.getElementById("send-button").style.display = "block";
+    // Pretvara json string u objekt
+    var json = JSON.parse(jsonString);
+
+    //console.log(json.topcodes);
+    
+
+
+    // Dohvacamo kodove
+    topcodes = json.topcodes;
+
+
+    // crtamo krug oko svakog koda
+    var ctx = document.querySelector("#video-canvas").getContext('2d');
+
+    ctx.fillStyle = "rgba(255, 0, 0, 0.3)";   // very translucent red
+    for (i = 0; i < topcodes.length; i++) {
+      ctx.beginPath();
+      ctx.arc(topcodes[i].x, topcodes[i].y, topcodes[i].radius, 0, Math.PI * 2, true);
+      ctx.fill();
+    }
+
+  });
+
+  function sendAnswer() {
+    //Sortiramo kodove po poslozenom redoslijedu uz pomoc x koordinate i stvaramo string za spremanje
+    topcodes.sort((a, b) => parseFloat(a.x) - parseFloat(b.x));
+    let temp = [];
+    let stringAnswer = "";
+
+    topcodes.reverse().forEach(element => {
+      temp.push(element.code);
+
+      stringAnswer += element.code + " ";
+    });
+
+    if (temp[0] == 369 && temp[temp.length - 1] == 341) {
+      temp = temp.reverse();
+      //Ako su naredbe poredane obrnutim redom od onog kojeg mi ocekujemo moramo to uzeti u obzir
+      stringAnswer = "";
+      temp.forEach(element => {
+        stringAnswer += element + " ";
+      });
+    }
+
+    stringAnswer = stringAnswer.trim();
+
+    let userId = document.cookie.substring(3);
+    let classId=document.getElementById("logedUserClassId").value
+
+    let data = {
+      user: userId,
+      answer: stringAnswer,
+      classId:classId
+    }
+
+    var request = {
+      "url": `/api/addAnswer`,
+      "method": "POST",
+      "data": data
+    }
+
+     console.log(data);
+
+
+    $.ajax(request).done(function (response) {
+      alert("Rjesenje uspjesno predano !");
+    })
+
+
+  }
+
+</script>
+<%-include("include/_footer") %>

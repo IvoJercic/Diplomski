@@ -1,0 +1,249 @@
+<%-include("include/_header") %>
+<script src="/js/maps.js"></script>
+<script src="/js/questions.js"></script>
+<script src="/js/games.js"></script>
+
+<style>
+    :root {
+        --modal-duration: 1s;
+        --modal-color: #16db93;
+    }
+
+
+    .button {
+        background: #428bca;
+        padding: 1em 2em;
+        color: #fff;
+        border: 0;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .button:hover {
+        background: #3876ac;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        margin: 10% auto;
+        width: 60%;
+        box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
+        animation-name: modalopen;
+        animation-duration: var(--modal-duration);
+    }
+
+    .modal-header h2 {
+        margin: 0;
+    }
+
+    .modal-header {
+        background: var(--modal-color);
+        padding: 15px;
+        color: #fff;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .modal-body {
+        padding: 10px 20px;
+        background: #fff;
+    }
+
+    .close {
+        color: #ccc;
+        float: right;
+        font-size: 30px;
+        color: #fff;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    @keyframes modalopen {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .btnAnswer {
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+    }
+
+    #divManualInstructions {
+        overflow: hidden;
+        text-align: center;
+    }
+</style>
+
+
+<main id="site-main">
+    <div id="parentDiv">
+        <div id="divSelect">
+            <select class="custom-select" onchange="changeMap(this.value)" id="selectMap">
+                <option selected>Odaberi mapu</option>
+                <option value="1">Mapa 1</option>
+                <option value="2">Mapa 2</option>
+                <option value="3">Mapa 3</option>
+                <option value="4">Mapa 4</option>
+                <option value="5">Mapa 5</option>
+                <option value="6">Mapa 6</option>
+                <!-- <option value="7">Mapa 7</option> -->
+                <option value="8">Mapa 8</option>
+            </select>
+            <hr />
+            <div id="divCanvas">
+                <canvas id="canvasGame"></canvas>
+            </div>
+
+            <hr>
+            <div id="divVisitedAnimals">
+                <h4>Posjecene zivotinje:</h4>
+            </div>
+        </div>
+
+        <div id="divListInstructions">
+            <select class="custom-select" id="selectClass" onchange="changeLinkHref(this.value)">
+                <option value="">Odaberi razred</option>
+                <% for(var i = 0; i < classes.length; i++) { %>
+                <option value="<%= classes[i]._id %>"><%= classes[i].name %></option>
+                <% } %>
+            </select>
+            <hr>
+            <select class="custom-select" id="selectAnswer" onchange="changeAnswer(this.value)">
+                <option selected>Odaberi odgovor</option>
+                <% for(var i = 0; i < answers.length; i++) { %>
+                <option id="selectAnswer<%= i + 1 %>" value="<%= answers[i].answer %>" data-classid="<%= answers[i].classId %>">#<%= i + 1 %> -
+                    <%= answersShortInfo[i].user %> -  <%=answers[i].answer %></option>
+                <% } %>
+            </select>
+            <button type="submit" onclick="executeInstructions()" id="btnStartExecution"
+                class="btn text-dark update form-group" style="display: none;">Pokreni</button>
+            <hr>
+            <button type="submit" onclick="executeInstructionsStepByStep()" id="btnNextStep"
+                class="btn text-dark update form-group">Korak po korak</button>
+
+            <hr>
+            <div id="divManualInstructions">
+                <span style="display: inline-block;">
+                    <button class="btn text-dark update form-group" onclick="executeManualInstruction('Left')"><i
+                            class="fas fa-arrow-circle-left"></i></button>
+                    <button class="btn text-dark update form-group" onclick="executeManualInstruction('Forward')"><i
+                            class="fas fa-arrow-circle-up"></i></button>
+                    <button class="btn text-dark update form-group" onclick="executeManualInstruction('Right')"><i
+                            class="fas fa-arrow-circle-right"></i></button>
+                </span>
+
+            </div>
+            <div id="divStepByStep"></div>
+        </div>
+    </div>
+    <hr>
+    <div class="container">
+        <h2 align="center">Svi odgovori</h2>
+        <form action="/" method="POST">
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Ime i prezime</th>
+                        <th>Odgovor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(var i = 0; i < answers.length; i++) { %>
+                    <tr>
+                        <td><%= i + 1 %></td>
+                        <td><%= answersShortInfo[i].user %></td>
+                        <td><%= answers[i].answer %></td>
+
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+    <div id="my-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalHeader"></h2>
+                <!--<span class="close">&times;</span> -->
+            </div>
+            <div class="modal-body">
+                <p id="modalBody"></p>
+                <hr>
+                <p id="hintParagraph"></p>
+                <span style="display: inline;">
+                    <button id="answerNo1" class="btn btn-dark btnAnswer" onclick="submitAnswer(0)">1</button>
+                    <button id="answerNo2" class="btn btn-dark btnAnswer" onclick="submitAnswer(1)">2</button>
+                    <button id="answerNo3" class="btn btn-dark btnAnswer" onclick="submitAnswer(2)">3</button>
+                    <button class="btn btn-warning" onclick="showHint()">Pomoć</button>
+                </span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    //Modal
+    const modal = document.querySelector('#my-modal');
+    const modalBtn = document.querySelector('#modal-btn');
+    const closeBtn = document.querySelector('.close');
+    function openModal() {
+        let randomNumber = Math.floor(Math.random() * questions.length);
+
+        while (readedQuestions.indexOf(randomNumber) != -1) {
+            readedQuestions.push(randomNumber);
+            randomNumber = Math.floor(Math.random() * questions.length);
+        }
+        currentQuestionId = randomNumber
+
+        //console.log("PROCITANA PITANJA: " + readedQuestions);
+
+        document.getElementById("modalHeader").innerHTML = "Pitanje broj: " + questions[randomNumber].id;
+        document.getElementById("modalBody").innerHTML = questions[randomNumber].opis;
+        document.getElementById("answerNo1").innerHTML = questions[randomNumber].odgovori[0].ime;
+        document.getElementById("answerNo2").innerHTML = questions[randomNumber].odgovori[1].ime;
+        document.getElementById("answerNo3").innerHTML = questions[randomNumber].odgovori[2].ime;
+        document.getElementById("hintParagraph").innerHTML = '';
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    function outsideClick(e) {
+        if (e.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    function filterAnswersByClass(classes){
+        console.log(classes);
+        
+    }
+</script>
+
+<%-include("include/_footer") %>

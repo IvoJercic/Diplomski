@@ -1,0 +1,71 @@
+<%-include("include/_header") %>
+
+<main id="site-main">
+    <div class="container">
+        <div class="box-nav d-flex justify-between">
+            <div class="filter">
+                <a href="/myUsers"><i class="fas fa-angle-double-left"></i> Svi korisnici</a>
+            </div>
+        </div>
+
+        <div class="form-title text-center">
+            <h2 class="text-dark">Ažuriraj korisnika</h2>
+            <span>Ispunite podatke kako bi ažurirali korisnika</span>
+        </div>
+
+        <form id="update_user" method="POST">
+            <div class="new_user">
+                <div class="form-group">
+                    <label for="name">Ime i prezime</label>
+                    <input type="hidden" name="_id" value="<%=user._id %>">
+                    <input type="text" name="name" value="<%=user.name %>" placeholder="Mark Stoenis">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" name="email" value="<%=user.email %>" placeholder="exapmle@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Uloga</label>
+                    <%if (logedUser.role  =="Superadmin") { %>
+
+                    <div class="radio inline">
+                        <input type="radio" id="radio-2" name="role" value="Superadmin" onchange="checkIfClassNeeded(this.value)"
+                            <%= user.role == 'Superadmin' ? 'checked' : '' %>>
+                        <label for="radio-2" class="radio-label">Superadmin</label>
+                    </div>
+                    <div class="radio inline">
+                        <input type="radio" id="radio-3" name="role" value="Admin" onchange="checkIfClassNeeded(this.value) "
+                            <%= user.role == 'Admin' ? 'checked' : '' %>>
+                        <label for="radio-3" class="radio-label">Admin</label>
+                    </div>
+                    <% } %>
+
+                    <div class="radio inline">
+                        <input type="radio" id="radio-4" name="role" value="Ucenik" onchange="checkIfClassNeeded(this.value)"
+                            <%= user.role == 'Ucenik' ? 'checked' : '' %>>
+                        <label for="radio-4" class="radio-label">Ucenik</label>
+                    </div>
+
+
+                    <!-- <div class="form-group" id="divClass">
+                        <label>Razred</label>
+                        <select onchange="setClassNameWhileUpdating(this.options[this.selectedIndex].text)" name="classId">
+                            <% for(var i = 0; i < allClassess.length; i++) { %>
+                            <option value="<%= allClassess[i]._id %>"
+                                <%= allClassess[i]._id == myClassId ? 'selected' : '' %>><%= allClassess[i].name %>
+                            </option>
+                            <% } %>
+                        </select>
+                        <input name="className" id="labelClassName" style="visibility: hidden;" />
+                    </div>
+                </div> -->
+                <div class="form-group">
+                    <button type="submit" class="btn text-dark update">Spremi</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<%-include("include/_footer") %>

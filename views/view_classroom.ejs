@@ -1,0 +1,26 @@
+<%-include("include/_header") %>
+<main id="site-main">
+    <div class="container">
+
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Ime i prezime</th>
+                    <th>@Email</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(var i = 0; i < users.length; i++) { %>
+                <tr>
+                    <td><%= i + 1 %></td>
+                    <td><%= users[i].name %></td>
+                    <td><%= users[i].email %></td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</main>
+<%-include("include/_footer") %>

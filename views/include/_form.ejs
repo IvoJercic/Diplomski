@@ -1,0 +1,54 @@
+<form action="/auth/register" id="add_user" method="POST">
+    <div class="new_user">
+        <div class="form-group">
+            <label for="name">Ime i prezime</label>
+            <input type="hidden" name="id" value="">
+            <input type="text" name="name" value="" placeholder="Ime Prezime" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="text" name="email" value="" placeholder="primjer@mail.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="role">Uloga</label>
+            <%if (logedUser.role  =="Superadmin" ) { %>
+            <div class="radio inline">
+                <input type="radio" id="radio-2" name="role" value="Superadmin"
+                    onchange="checkIfClassNeeded(this.value)">
+                <label for="radio-2" class="radio-label">Superadmin</label>
+            </div>
+
+            <div class="radio inline">
+                <input type="radio" id="radio-3" name="role" value="Admin" onchange="checkIfClassNeeded(this.value)" <%if (logedUser.role  =="Superadmin" ) { %>checked<% } %>>
+                <label for="radio-3" class="radio-label">Admin</label>
+            </div>
+            <% } %>
+            <%if (logedUser.role  =="Admin" ) { %>
+
+            <div class="radio inline">
+                <input type="radio" id="radio-4" name="role" value="Ucenik" checked
+                    onchange="checkIfClassNeeded(this.value)">
+                <label for="radio-4" class="radio-label">Ucenik</label>
+            </div>
+
+        </div>
+
+        <div class="form-group" id="divClass">
+            <label for="class">Razred</label>
+                <select <%if (logedUser.role  !="Superadmin") { %>required<% } %> id="selectClass" name="classId" onchange="writeClassNameOnLabel(this.options[this.selectedIndex].text)">
+                    <option value="">None</option>
+                    <% for(var i = 0; i < myClasses.length; i++) { %>
+                    <option value="<%= myClasses[i]._id %>"><%= myClasses[i].name %></option>
+                    <% } %>
+                </select>
+            <input name="className" id="labelClassName" style="visibility: hidden;" />
+        </div>
+        <% } %>
+
+
+        <div class="form-group">
+            <button type="submit" class="btn text-dark update">Spremi</button>
+        </div>
+    </div>
+</form>
